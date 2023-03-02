@@ -1,0 +1,4 @@
+*.global.js
+build
+node_modules
+defaultConfig.ts

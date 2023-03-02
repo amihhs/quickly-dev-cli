@@ -1,0 +1,67 @@
+{
+  "name": "@amihhs/quickly-dev-cli",
+  "type": "module",
+  "version": "0.0.2",
+  "description": "CLI for Quickly build a local development environment",
+  "author": {
+    "name": "amihhs",
+    "email": "amihhs369@gmail.com",
+    "url": "https://github.com/amihhs"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/amihhs/quickly-dev-cli",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/amihhs/quickly-dev-cli.git",
+    "directory": "packages/cli"
+  },
+  "bugs": {
+    "url": "https://github.com/amihhs/quickly-dev-cli"
+  },
+  "keywords": [
+    "dev",
+    "local",
+    "cli",
+    "quickly",
+    "quickly-dev-cli"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.cjs",
+      "import": "./dist/index.mjs"
+    }
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "main": "./dist/index.mjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "qdev": "./bin/qdev.mjs"
+  },
+  "files": [
+    "bin",
+    "dist"
+  ],
+  "engines": {
+    "node": ">=14"
+  },
+  "scripts": {
+    "build": "unbuild",
+    "stub": "unbuild --stub",
+    "pkg": "pnpm run build && pkg dist/index.cjs -t node16-win-x64 --out-path=bin/",
+    "release": "release-it"
+  },
+  "dependencies": {
+    "cac": "^6.7.14",
+    "chokidar": "^3.5.3",
+    "colorette": "^2.0.19",
+    "consola": "^2.15.3",
+    "fast-glob": "^3.2.12",
+    "magic-string": "^0.30.0",
+    "pathe": "^1.1.0"
+  }
+}
