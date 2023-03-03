@@ -11,7 +11,7 @@
     "url": "https://github.com/amihhs"
   },
   "scripts": {
-    "build": "rimraf dist && rimraf packages/*/dist && esno scripts/copy-files.ts && pnpm -r --filter=@amihhs/quickly-dev-exe run prepublishOnly",
+    "build": "rimraf dist && rimraf packages/*/dist && esno scripts/copy-files.ts && pnpm -r --filter=@amihhs/quickly-dev-exe run build && esno scripts/copy-exe.ts",
     "release": "bumpp -r",
     "test": "vitest",
     "lint": "eslint .",

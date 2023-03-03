@@ -2,11 +2,11 @@ import { cac } from 'cac'
 import { version } from '../package.json'
 import type { CliOptions } from './types'
 export const NAME = 'qdev'
-export async function startCli(cwd = process.cwd(), argv = process.argv, options: CliOptions = {}): Promise<void> {
+export async function startCli(_cwd = process.cwd(), argv = process.argv, _options: CliOptions = {}): Promise<void> {
   const cli = cac(NAME)
   cli
     .command('start', 'Start build a local development environment')
-    .action(async (dir, options) => {
+    .action(async (_dir, _options) => {
       // console.log('<<start command>>', dir, options, cwd, argv, options)
       console.log('<<start command>>', 'Welcome use quickly-dev-cli, but now it han\'t any function, please wait for the next version.')
     })

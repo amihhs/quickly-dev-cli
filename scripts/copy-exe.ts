@@ -1,7 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
-import * as execa from 'execa'
+import { execaSync } from 'execa'
 import makeEmptyDir from 'make-empty-dir'
 
 const __dirname = fileURLToPath(import.meta.url)
@@ -12,7 +12,7 @@ const exeDir = path.join(repoRoot, 'packages/exe/dist')
 ;(async () => {
   await makeEmptyDir(dest)
   if (!fs.existsSync(path.join(exeDir, 'linux-x64/pnpm'))) {
-    execa.sync('pnpm', ['--filter=@amihhs/quickly-dev-exe', 'run', 'prepublishOnly'], {
+    execaSync('pnpm', ['--filter=@amihhs/quickly-dev-exe', 'run', 'prepublishOnly'], {
       cwd: repoRoot,
       stdio: 'inherit',
     })
