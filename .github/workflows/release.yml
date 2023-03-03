@@ -3,23 +3,31 @@ name: Release
 on:
   push:
     tags:
-      - 'v*'
+      - "v*"
+
+permissions:
+  contents: read
 
 jobs:
   release:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write # for softprops/action-gh-release to create GitHub release
+    environment: release
+
     steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+
       - name: Set node
         uses: actions/setup-node@v3
         with:
           node-version: 16.x
-          registry-url: 'https://registry.npmjs.org'
-
-      - name: Setup
-        run: npm i -g @antfu/ni pnpm
+          cache: pnpm
+          registry-url: "https://registry.npmjs.org"
 
       - run: npx changelogithub
         continue-on-error: true
@@ -27,19 +35,18 @@ jobs:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
 
       - name: Install Dependencies
-        run: nci
+        run: pnpm i
 
       - name: PNPM build
-        run: nr build
+        run: pnpm run build
 
       - name: Publish to NPM
         run: pnpm -r publish --access public --no-git-checks
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
 
-      - name: Publish to VSCE & OVSX
-        run: npm run publish
-        working-directory: ./packages/vscode
-        env:
-          VSCE_TOKEN: ${{secrets.VSCE_TOKEN}}
-          OVSX_TOKEN: ${{secrets.OVSX_TOKEN}}
+      - name: Uploading Release Assets
+        uses: softprops/action-gh-release@v1
+        with:
+          draft: true
+          files: dist/*
