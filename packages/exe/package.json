@@ -1,7 +1,7 @@
 {
   "name": "@amihhs/quickly-dev-exe",
   "type": "module",
-  "version": "0.0.2-beta.1",
+  "version": "0.0.2-beta.2",
   "description": "CLI for Quickly build a local development environment",
   "author": {
     "name": "amihhs",
