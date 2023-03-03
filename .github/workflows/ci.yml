@@ -35,7 +35,7 @@ jobs:
 
     strategy:
       matrix:
-        node: [14.x, 16.x]
+        node: [16.x, 18.x]
         os: [ubuntu-latest]
       fail-fast: false
 
@@ -45,6 +45,9 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node }}
+          
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
 
       - name: Install
         run: pnpm i
