@@ -1,0 +1,8 @@
+{
+  "pkg": {
+    "targets": [
+      "node16-linuxstatic-x64"
+    ],
+    "outputPath": "./dist/linuxstatic-x64"
+  }
+}

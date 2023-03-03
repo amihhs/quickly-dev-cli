@@ -1,0 +1,8 @@
+{
+  "pkg": {
+    "targets": [
+      "node16-linux-arm64"
+    ],
+    "outputPath": "./dist/linux-arm64"
+  }
+}

@@ -40,20 +40,19 @@
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
   "bin": {
-    "qdev": "./bin/qdev.mjs"
+    "quickly-dev-cli-esm": "./bin/quickly-dev-cli.mjs",
+    "quickly-dev-cli-lib": "./bin/quickly-dev-cli.cjs"
   },
   "files": [
     "bin",
     "dist"
   ],
   "engines": {
-    "node": ">=14"
+    "node": ">=16"
   },
   "scripts": {
     "build": "unbuild",
-    "stub": "unbuild --stub",
-    "pkg": "pnpm run build && pkg dist/index.cjs -t node16-win-x64 --out-path=bin/",
-    "release": "release-it"
+    "stub": "unbuild --stub"
   },
   "dependencies": {
     "cac": "^6.7.14",

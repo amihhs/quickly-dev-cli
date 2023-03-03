@@ -1,0 +1,41 @@
+{
+  "name": "@amihhs/quickly-dev-exe",
+  "type": "module",
+  "version": "0.0.1",
+  "description": "CLI for Quickly build a local development environment",
+  "author": {
+    "name": "amihhs",
+    "email": "amihhs369@gmail.com",
+    "url": "https://github.com/amihhs"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/amihhs/quickly-dev-cli",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/amihhs/quickly-dev-cli.git",
+    "directory": "packages/exe"
+  },
+  "bugs": {
+    "url": "https://github.com/amihhs/quickly-dev-cli"
+  },
+  "keywords": [
+    "dev",
+    "local",
+    "cli",
+    "quickly",
+    "quickly-dev-cli"
+  ],
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=16"
+  },
+  "scripts": {
+    "prepublishOnly": "pnpm --filter=@amihhs/quickly-dev-cli run build && esno ./scripts/build-exe.ts"
+  },
+  "devDependencies": {
+    "execa": "^7.0.0",
+    "pkg": "^5.8.0"
+  }
+}

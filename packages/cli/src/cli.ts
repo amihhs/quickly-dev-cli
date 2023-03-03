@@ -7,7 +7,8 @@ export async function startCli(cwd = process.cwd(), argv = process.argv, options
   cli
     .command('start', 'Start build a local development environment')
     .action(async (dir, options) => {
-      console.log('<<start command>>', dir, options, cwd, argv, options)
+      // console.log('<<start command>>', dir, options, cwd, argv, options)
+      console.log('<<start command>>', 'Welcome use quickly-dev-cli, but now it han\'t any function, please wait for the next version.')
     })
 
   cli.help()

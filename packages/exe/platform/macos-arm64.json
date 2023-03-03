@@ -1,0 +1,8 @@
+{
+  "pkg": {
+    "targets": [
+      "node16-macos-arm64"
+    ],
+    "outputPath": "./dist/macos-arm64"
+  }
+}
