@@ -10,7 +10,8 @@ const dest = path.join(repoRoot, 'dist')
 const exeDir = path.join(repoRoot, 'packages/exe/dist')
 
 ;(async () => {
-  await makeEmptyDir(dest)
+  if (!fs.existsSync(dest))
+    await makeEmptyDir(dest)
   if (!fs.existsSync(path.join(exeDir, 'linux-x64/quickly-dev-cli'))) {
     execaSync('pnpm', ['--filter=@amihhs/quickly-dev-exe', 'run', 'build'], {
       cwd: repoRoot,
