@@ -58,7 +58,7 @@ if ($PSVersionTable.PSVersion.Major -ge 6) {
       }
     }
 
-    $cliName = "quickly-dev-cli"
+    $cliName = "qdev"
   }
 
   if ($PSVersionTable.Platform -eq 'Win32NT') {
@@ -75,7 +75,7 @@ if ($platform -eq 'win') {
     $architecture = 'i686'
   }
 
-  $cliName = "quickly-dev-cil.exe"
+  $cliName = "qdev.exe"
 }
 
 if ($null -eq $platform) {
@@ -113,29 +113,34 @@ if ($null -eq $version -and $preferredVersion -in $versions) {
   $version = $preferredVersion
 }
 
+Write-Host "Current tags:" -ForegroundColor Yellow -NoNewline
+$versionJson.'dist-tags' | Format-List
+
+Write-Host "Versions:" -ForegroundColor Yellow -NoNewline 
+$versionJson.versions | Get-Member -Type NoteProperty | Format-Wide -Property Name -AutoSize 
+
 # if version is still null, then the preferred version is not found
 if ($null -eq $version) {
-  Write-Host "Current tags:" -ForegroundColor Yellow -NoNewline
-  $versionJson.'dist-tags' | Format-List
-
-  Write-Host "Versions:" -ForegroundColor Yellow -NoNewline
-  $versionJson.versions | Get-Member -Type NoteProperty | Format-Wide -Property Name -AutoSize
-
   Write-Error "Sorry! quickly-dev-cli '$preferredVersion' version could not be found. Use one of the tags or published versions from the provided list"
 }
-
-Write-Host "Downloading pnpm from GitHub...`n" -ForegroundColor Green
 
 # create a temporary directory
 $tempFileFolder = New-TemporaryDirectory
 
 $tempFile = (Join-Path $tempFileFolder.FullName $cliName)
-$archiveUrl="https://github.com/amihhs/quickly-dev-cli/releases/download/v$version/qdev-$platform-$architecture"
+$archiveUrl = "https://github.com/amihhs/quickly-dev-cli/releases/download/v$version/quickly-dev-cli-$platform-$architecture"
 if ($platform -eq 'win') {
-  $archiveUrl="$archiveUrl.exe"
+  $archiveUrl = "$archiveUrl.exe"
 }
+# log
+Write-Host "Downloading quickly-dev-cil from GitHub...`n'$archiveUrl'`n" -ForegroundColor Green
+Write-Host "temp OutFile to `n'$tempFile'`n" -ForegroundColor Green
+
+# test in window file url
+# $archiveUrl = "https://doget-api.oopscloud.xyz/api/download?token=eyJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJodHRwczovL2dpdGh1Yi5jb20vYW1paGhzL3F1aWNrbHktZGV2LWNsaS9yZWxlYXNlcy9kb3dubG9hZC92MC4wLjItYmV0YS4yL3F1aWNrbHktZGV2LWNsaS13aW4teDY0LmV4ZSJ9.3rj5JW390tTJBZOG9rKVPzU9mTeQUgcNv6ZxWDaban4"
 
 Invoke-WebRequest $archiveUrl -OutFile $tempFile -UseBasicParsing
+
 Write-Host "Running setup...`n" -ForegroundColor Green
 if ($platform -ne 'win') {
   chmod +x $tempFile

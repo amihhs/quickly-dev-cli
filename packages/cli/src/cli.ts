@@ -1,9 +1,26 @@
+import path from 'path'
 import { cac } from 'cac'
+import { green } from 'colorette'
+import consola from 'consola'
 import { version } from '../package.json'
+import { CLI_NAME, SIMPLE_NAME } from './const'
 import type { CliOptions } from './types'
-export const NAME = 'qdev'
-export async function startCli(_cwd = process.cwd(), argv = process.argv, _options: CliOptions = {}): Promise<void> {
-  const cli = cac(NAME)
+import { handler as setupHandler } from './command/setup'
+export async function startCli(cwd = process.cwd(), argv = process.argv, _options: CliOptions = {}): Promise<void> {
+  const cli = cac(SIMPLE_NAME)
+  cli
+    .command('setup', 'setup quickly-dev-cli to your system')
+    .action(async (_dir, _options) => {
+      const USER_HOME = process.env.HOME || process.env.USERPROFILE
+      // consola.info('<<setup>>', `homeDir: ${cwd}`, _dir)
+      const output = await setupHandler({
+        homeDir: path.join(USER_HOME || cwd, CLI_NAME),
+        force: true,
+      })
+
+      consola.info(green(`<<setup complete>> \n ${output}`))
+    })
+
   cli
     .command('start', 'Start build a local development environment')
     .action(async (_dir, _options) => {

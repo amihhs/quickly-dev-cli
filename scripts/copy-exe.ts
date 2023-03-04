@@ -1,7 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
-import { execaSync } from 'execa'
+import { sync } from 'execa'
 import makeEmptyDir from 'make-empty-dir'
 
 const __dirname = fileURLToPath(import.meta.url)
@@ -11,16 +11,16 @@ const exeDir = path.join(repoRoot, 'packages/exe/dist')
 
 ;(async () => {
   await makeEmptyDir(dest)
-  if (!fs.existsSync(path.join(exeDir, 'linux-x64/pnpm'))) {
-    execaSync('pnpm', ['--filter=@amihhs/quickly-dev-exe', 'run', 'prepublishOnly'], {
+  if (!fs.existsSync(path.join(exeDir, 'linux-x64/quickly-dev-cli'))) {
+    sync('pnpm', ['--filter=@amihhs/quickly-dev-exe', 'run', 'build'], {
       cwd: repoRoot,
       stdio: 'inherit',
     })
   }
   copyArtifact('linux-x64/quickly-dev-cli', 'quickly-dev-cli-linux-x64')
+  copyArtifact('win-x64/quickly-dev-cli.exe', 'quickly-dev-cli-win-x64.exe')
   copyArtifact('linuxstatic-x64/quickly-dev-cli', 'quickly-dev-cli-linuxstatic-x64')
   copyArtifact('macos-x64/quickly-dev-cli', 'quickly-dev-cli-macos-x64')
-  copyArtifact('win-x64/quickly-dev-cli.exe', 'quickly-dev-cli-win-x64.exe')
 
   const isM1Mac = process.platform === 'darwin' && process.arch === 'arm64'
   if (process.platform === 'linux' || isM1Mac) {

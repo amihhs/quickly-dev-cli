@@ -52,9 +52,11 @@
   },
   "scripts": {
     "build": "unbuild",
-    "stub": "unbuild --stub"
+    "stub": "unbuild --stub",
+    "dev": "esno ./src/index.ts"
   },
   "dependencies": {
+    "@pnpm/os.env.path-extender": "^0.2.10",
     "cac": "^6.7.14",
     "chokidar": "^3.5.3",
     "colorette": "^2.0.19",
