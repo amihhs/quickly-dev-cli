@@ -13,6 +13,7 @@ importers:
       bumpp: ^9.0.0
       eslint: ^8.33.0
       esno: ^0.16.3
+      execa: ^7.0.0
       fs-extra: ^11.1.0
       husky: ^8.0.3
       lint-staged: ^13.1.2
@@ -31,6 +32,7 @@ importers:
       bumpp: 9.0.0
       eslint: 8.35.0
       esno: 0.16.3
+      execa: 7.0.0
       fs-extra: 11.1.0
       husky: 8.0.3
       lint-staged: 13.1.2
@@ -62,10 +64,8 @@ importers:
 
   packages/exe:
     specifiers:
-      execa: ^7.0.0
       pkg: ^5.8.0
     devDependencies:
-      execa: 7.0.0
       pkg: 5.8.0
 
 packages:

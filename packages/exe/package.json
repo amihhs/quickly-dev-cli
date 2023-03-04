@@ -35,7 +35,6 @@
     "build": "pnpm --filter=@amihhs/quickly-dev-cli run build && esno ./scripts/build-exe.ts"
   },
   "devDependencies": {
-    "execa": "^7.0.0",
     "pkg": "^5.8.0"
   }
 }
