@@ -101,14 +101,14 @@ download_and_install() {
     version="${CLI_VERSION}"
   fi
 
-  archive_url="https://github.com/amihhs/quickly-dev-cli/releases/download/v${version}/pnpm-${platform}-${arch}"
+  archive_url="https://github.com/amihhs/quickly-dev-cli/releases/download/v${version}/quickly-dev-cli-${platform}-${arch}"
   if [ "${platform}" = "win" ]; then
     archive_url="${archive_url}.exe"
   fi
 
-  validate_url "$archive_url"  || abort "quickly-dev-cli version '${version}' could not be found"
+  validate_url "$archive_url"  || abort "quickly-dev-cli version '${version}' could not be found, '${archive_url}'"
 
-  # install to PNPM_HOME, defaulting to ~/.pnpm
+  # install to QDEV_HOME, defaulting to ~/quickly-dev-cli
   tmp_dir="$(mktemp -d)" || abort "Tmpdir Error!"
   trap 'rm -rf "$tmp_dir"' EXIT INT TERM HUP
 
