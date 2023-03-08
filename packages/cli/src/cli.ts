@@ -6,6 +6,7 @@ import { version } from '../package.json'
 import { CLI_NAME, SIMPLE_NAME } from './const'
 import type { CliOptions } from './types'
 import { handler as setupHandler } from './command/setup'
+import { handler as startHandler } from './command/start'
 export async function startCli(cwd = process.cwd(), argv = process.argv, _options: CliOptions = {}): Promise<void> {
   const cli = cac(SIMPLE_NAME)
   cli
@@ -25,7 +26,8 @@ export async function startCli(cwd = process.cwd(), argv = process.argv, _option
     .command('start', 'Start build a local development environment')
     .action(async (_dir, _options) => {
       // console.log('<<start command>>', dir, options, cwd, argv, options)
-      console.log('<<start command>>', 'Welcome use quickly-dev-cli, but now it han\'t any function, please wait for the next version.')
+      // console.log('<<start command>>', 'Welcome use quickly-dev-cli, but now it han\'t any function, please wait for the next version.')
+      await startHandler()
     })
 
   cli.help()
