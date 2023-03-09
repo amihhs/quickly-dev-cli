@@ -7,7 +7,20 @@ import { CLI_NAME, SIMPLE_NAME } from './const'
 import type { CliOptions } from './types'
 import { handler as setupHandler } from './command/setup'
 import { handler as startHandler } from './command/start'
+import { clearAbortController } from './utils/fetch'
+
 export async function startCli(cwd = process.cwd(), argv = process.argv, _options: CliOptions = {}): Promise<void> {
+  process.on('exit', (code) => {
+    console.log(`About to exit with code: ${code}`)
+    // stop all fetch & clear all abort controller
+    clearAbortController()
+  })
+  process.once('SIGINT', (code) => {
+    console.log(`SIGINT: ${code}`)
+    // stop all fetch & clear all abort controller
+    clearAbortController()
+  })
+
   const cli = cac(SIMPLE_NAME)
   cli
     .command('setup', 'setup quickly-dev-cli to your system')
@@ -25,8 +38,6 @@ export async function startCli(cwd = process.cwd(), argv = process.argv, _option
   cli
     .command('start', 'Start build a local development environment')
     .action(async (_dir, _options) => {
-      // console.log('<<start command>>', dir, options, cwd, argv, options)
-      // console.log('<<start command>>', 'Welcome use quickly-dev-cli, but now it han\'t any function, please wait for the next version.')
       await startHandler()
     })
 
@@ -35,5 +46,6 @@ export async function startCli(cwd = process.cwd(), argv = process.argv, _option
   // Parse CLI args without running the command to
   // handle command errors globally
   cli.parse(argv, { run: false })
+
   await cli.runMatchedCommand()
 }

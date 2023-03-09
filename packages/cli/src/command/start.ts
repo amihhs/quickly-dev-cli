@@ -90,7 +90,7 @@ function presetPrompt() {
 function installPnpm() {
   const pnpmInstallFile = {
     name: 'pnpm',
-    url: '',
+    url: 'https://doget-api.oopscloud.xyz/api/download?token=eyJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJodHRwczovL2dpdGh1Yi5jb20vcG5wbS9wbnBtL3JlbGVhc2VzL2Rvd25sb2FkL3Y3LjI5LjEvcG5wbS13aW4teDY0LmV4ZSJ9.Nd9gXUggW4JHWuu3dvdnQ1oYEIiYYFRrFfQ3HWOtPio',
     version: 'laster',
     targeFile: 'D:\\test', // __TEMP__ create a temp dir
   }
