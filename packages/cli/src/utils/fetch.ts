@@ -2,6 +2,7 @@
 import fs from 'node:fs'
 import { pipeline } from 'node:stream'
 import { promisify } from 'node:util'
+import consola from 'consola'
 import { $fetch } from 'ofetch'
 import ProgressBar from 'progress'
 import type { DownloadTask } from '../command/start'
@@ -33,7 +34,7 @@ export async function fetchFile(task: DownloadTask, _options: RequestInit = {}):
       totalSize = parseInt(res.response.headers.get('content-length') || '0', 10)
     },
   })
-  const bar = new ProgressBar('downloading [:bar] :rate/bps :percent :etas', {
+  const bar = new ProgressBar(`${name} downloading  ${(totalSize / (1024 * 1024))}Mb [:bar] :rate :percent :etas`, {
     curr: 0,
     complete: '=',
     incomplete: ' ',
@@ -46,17 +47,21 @@ export async function fetchFile(task: DownloadTask, _options: RequestInit = {}):
     bar.tick(writer.writableHighWaterMark)
   })
   writer.on('close', () => {
+    consola.info('writer close')
     clearAbortController(url)
-    console.log('download close')
   })
   writer.on('error', () => {
     // stop download
     control.abort()
-    console.log('download error')
   })
 
   const streamPipeline = promisify(pipeline)
-  await streamPipeline(res as any, writer, { signal: control.signal })
+  try {
+    await streamPipeline(res as any, writer, { signal: control.signal })
+  }
+  catch (e) {
+    consola.error('download error', e)
+  }
 }
 
 export function clearAbortController(url?: string) {

@@ -1,0 +1,26 @@
+diff --git a/lib/node-progress.js b/lib/node-progress.js
+index 8eb0740a721c6746a31baf3ee4c9e452d40085f3..905d63d976b9aa7c9ad56a5f398a208b7192f5b6 100644
+--- a/lib/node-progress.js
++++ b/lib/node-progress.js
+@@ -136,7 +136,11 @@ ProgressBar.prototype.render = function (tokens, force) {
+   var elapsed = new Date - this.start;
+   var eta = (percent == 100) ? 0 : elapsed * (this.total / this.curr - 1);
+   var rate = this.curr / (elapsed / 1000);
+-
++  function formatRate(rate) {
++    if (rate > 1e6) return (rate / 1e6).toFixed(2) + ' MB/s';
++    if (rate > 1e3) return (rate / 1e3).toFixed(2) + ' kB/s';
++    return rate.toFixed(0) + ' B/s';
++  }
+   /* populate the bar template with percentages and timestamps */
+   var str = this.fmt
+     .replace(':current', this.curr)
+@@ -145,7 +149,7 @@ ProgressBar.prototype.render = function (tokens, force) {
+     .replace(':eta', (isNaN(eta) || !isFinite(eta)) ? '0.0' : (eta / 1000)
+       .toFixed(1))
+     .replace(':percent', percent.toFixed(0) + '%')
+-    .replace(':rate', Math.round(rate));
++    .replace(':rate', formatRate(rate));
+ 
+   /* compute the available space (non-zero) for the bar */
+   var availableSpace = Math.max(0, this.stream.columns - str.replace(':bar', '').length);

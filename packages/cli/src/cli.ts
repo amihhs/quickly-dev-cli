@@ -11,12 +11,12 @@ import { clearAbortController } from './utils/fetch'
 
 export async function startCli(cwd = process.cwd(), argv = process.argv, _options: CliOptions = {}): Promise<void> {
   process.on('exit', (code) => {
-    console.log(`About to exit with code: ${code}`)
+    consola.error(`About to exit with code: ${code} \r\n`)
     // stop all fetch & clear all abort controller
     clearAbortController()
   })
   process.once('SIGINT', (code) => {
-    console.log(`SIGINT: ${code}`)
+    console.error(`SIGINT: ${code} \r\n`)
     // stop all fetch & clear all abort controller
     clearAbortController()
   })

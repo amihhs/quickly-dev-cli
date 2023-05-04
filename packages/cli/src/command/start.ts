@@ -1,7 +1,7 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 // https://www.npmjs.com/package/inquirer
 import consola from 'consola'
 import inquirer from 'inquirer'
-import { fetchFile } from '../utils/fetch'
 
 /**
  * preset prompt
@@ -30,8 +30,9 @@ export interface DownloadTask {
  * 1. Select applications or features that need to be installed
  */
 export async function handler() {
+  const presetPackage = await presetPrompt()
   const answer = await inquirer.prompt<StartPrompt>([
-    presetPrompt(),
+    presetPackage,
   ])
 
   const { preset } = answer
@@ -41,20 +42,7 @@ export async function handler() {
   // waiting download stack
   const downloadStack: DownloadTask[] = []
 
-  if (preset.includes('__PNPM__')) {
-    const { downloadTask } = installPnpm()
-    downloadStack.push(downloadTask)
-  }
-  if (preset.includes('__GIT__')) {
-    const { downloadTask } = installGit()
-    downloadStack.push(downloadTask)
-  }
-  if (preset.includes('__VSCODE__')) {
-    const { downloadTask } = installVsCode()
-    downloadStack.push(downloadTask)
-  }
-
-  consola.log(answer)
+  consola.log(preset)
 
   await run(downloadStack)
 }
@@ -62,90 +50,30 @@ export async function handler() {
 /**
  * preset prompt
  */
-function presetPrompt() {
+async function presetPrompt() {
+  const choices = []
+  const json = (await import ('../config/preset.json')).default
+  for (const key in json) {
+    // @ts-expect-error
+    const item = json[key]
+    choices.push({
+      name: item.description,
+      value: item,
+    })
+  }
+  consola.log(choices)
   return {
     name: 'preset',
     type: 'checkbox',
     message: 'Please select the items to be installed:',
-    choices: [
-      {
-        name: 'PNPM: Install pnpm as your package manager',
-        value: '__PNPM__',
-      },
-      {
-        name: 'GIT: Install git as your version control tool',
-        value: '__GIT__',
-      },
-      {
-        name: 'VS Code: Install VS Code as your code editor',
-        value: '__VSCODE__',
-      },
-    ],
+    choices,
   }
-}
-
-/**
- * install pnpm
- */
-function installPnpm() {
-  const pnpmInstallFile = {
-    name: 'pnpm',
-    url: 'https://doget-api.oopscloud.xyz/api/download?token=eyJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJodHRwczovL2dpdGh1Yi5jb20vcG5wbS9wbnBtL3JlbGVhc2VzL2Rvd25sb2FkL3Y3LjI5LjEvcG5wbS13aW4teDY0LmV4ZSJ9.Nd9gXUggW4JHWuu3dvdnQ1oYEIiYYFRrFfQ3HWOtPio',
-    version: 'laster',
-    targeFile: 'D:\\test', // __TEMP__ create a temp dir
-  }
-  // download pnpm
-
-  // install pnpm
-
-  // set env
-
-  return { downloadTask: pnpmInstallFile }
-}
-
-/**
- * install pnpm
- */
-function installGit() {
-  // TODO
-  const installFile = {
-    name: 'git',
-    url: '',
-    version: 'laster',
-    targeFile: 'D:\\test', // __TEMP__ create a temp dir
-  }
-  return { downloadTask: installFile }
-}
-
-/**
- * install pnpm
- */
-function installVsCode() {
-  // TODO
-  const installFile = {
-    name: 'vscode',
-    url: '',
-    version: 'laster',
-    targeFile: 'D:\\test', // __TEMP__ create a temp dir
-  }
-  return { downloadTask: installFile }
 }
 
 /**
  * run download task
  */
 async function run(tasks: DownloadTask[]) {
-  const taskGenerator = (async function* (tasks: DownloadTask[]) {
-    for (const task of tasks) {
-      try {
-        yield fetchFile(task)
-      }
-      catch (err) {
-        consola.error(err)
-      }
-    }
-  })(tasks)
-
-  for await (const task of taskGenerator)
-    consola.log(task)
+  // for (const task of tasks)
+  //   fetchFile(task)
 }
