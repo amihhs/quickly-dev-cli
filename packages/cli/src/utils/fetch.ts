@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import fs from 'node:fs'
 import { pipeline } from 'node:stream'
 import { promisify } from 'node:util'
@@ -15,59 +14,70 @@ const CURRENT_FETCH = new Map<string, AbortController>()
  * 2. Save the download file to the specified directory, and show download progress
  * 3. Return the file path & some file information
  */
-export async function fetchFile(task: DownloadTask, _options: RequestInit = {}): Promise<any> {
-  // TODO
+export function fetchFile(task: DownloadTask, _options: RequestInit = {}): Promise<any> {
+  return new Promise((resolve, reject) => {
+    const { url, name, targeFile } = task
+    if (!url)
+      reject(new Error('url is required'))
 
-  const { url, name, targeFile } = task
-  if (!url)
-    return
-  console.log('begin download...', url)
-  const writer = fs.createWriteStream(`${targeFile}/${name}.exe`, { autoClose: true })
-  const control = new AbortController()
-  CURRENT_FETCH.set(url, control)
+    consola.start('begin download...')
+    consola.info(url)
 
-  let totalSize = 0
-  const res = await $fetch(url, {
-    responseType: 'stream',
-    signal: control.signal,
-    onResponse: (res) => {
-      totalSize = parseInt(res.response.headers.get('content-length') || '0', 10)
-    },
-  })
-  const bar = new ProgressBar(`${name} downloading  ${(totalSize / (1024 * 1024))}Mb [:bar] :rate :percent :etas`, {
-    curr: 0,
-    complete: '=',
-    incomplete: ' ',
-    width: 40,
-    total: totalSize,
-  })
+    let filename = name
+    const filePath = `${targeFile}\\${filename}`
+    // 判断文件是否存在
+    const isExist = fs.existsSync(filePath)
+    if (!isExist)
+      fs.writeFileSync(filePath, '')
 
-  writer.on('drain', () => {
-    // console.log('drain', writer.writableHighWaterMark)
-    bar.tick(writer.writableHighWaterMark)
-  })
-  writer.on('close', () => {
-    consola.info('writer close')
-    clearAbortController(url)
-  })
-  writer.on('error', () => {
-    // stop download
-    control.abort()
-  })
+    const writer = fs.createWriteStream(filePath, { autoClose: false })
+    const control = new AbortController()
+    CURRENT_FETCH.set(url, control)
 
-  const streamPipeline = promisify(pipeline)
-  try {
-    await streamPipeline(res as any, writer, { signal: control.signal })
-  }
-  catch (e) {
-    consola.error('download error', e)
-  }
+    let totalSize = 0
+    $fetch(url, {
+      responseType: 'stream',
+      signal: control.signal,
+      onResponse: (res) => {
+        filename = res.response.headers.get('content-disposition')?.split('filename=')[1] || ''
+        consola.log(`filename: ${filename}`)
+        totalSize = parseInt(res.response.headers.get('content-length') || '0', 10)
+      },
+    }).then((res) => {
+      const bar = new ProgressBar(`${name} downloading  ${(totalSize / (1024 * 1024)).toFixed(2)}Mb [:bar] :rate :percent :etas`, {
+        curr: 0,
+        complete: '=',
+        incomplete: ' ',
+        width: 30,
+        total: totalSize,
+      })
+      let preSize = 0
+      writer.on('drain', () => {
+        const size = writer.bytesWritten - preSize
+        preSize = writer.bytesWritten
+        bar.tick(size)
+      })
+      writer.on('finish', () => {
+        consola.success('download success')
+        writer.close()
+        fs.renameSync(filePath, `${targeFile}\\${filename}`)
+        resolve({ task, filePath })
+      })
+      writer.on('error', (err) => {
+        writer.close()
+        control.abort()
+        reject(err)
+      })
+      const streamPipeline = promisify(pipeline)
+      streamPipeline(res as any, writer, { signal: control.signal }).catch(reject)
+    })
+  })
 }
 
-export function clearAbortController(url?: string) {
+export function clearAbortController(url?: string, isFinish = false) {
   if (url) {
     const controller = CURRENT_FETCH.get(url)
-    if (controller)
+    if (controller && !isFinish)
       controller.abort?.()
     CURRENT_FETCH.delete(url)
     return
