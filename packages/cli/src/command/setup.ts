@@ -20,17 +20,6 @@ export function copyCli(currentLocation: string, targetDir: string) {
   fs.copyFileSync(currentLocation, newExecPath)
 }
 
-function getExecPath() {
-  // @ts-expect-error
-  if (process.pkg != null) {
-    // If the CLI was bundled by vercel/pkg then we cannot use the js path for npm_execpath
-    // because in that case the js is in a virtual filesystem inside the executor.
-    // Instead, we use the path to the exe file.
-    return process.execPath
-  }
-  return process.cwd()
-}
-
 export async function handler(
   opts: {
     force?: boolean
@@ -67,16 +56,11 @@ function renderSetupOutput(report: PathExtenderReport) {
   if (report.configFile)
     output.push(reportConfigChange(report.configFile))
 
-  output.push(`Next configuration changes were made:
-${report.newSettings}`)
-  if (report.configFile == null) {
-    output.push('Setup complete. Open a new terminal to start using pnpm.')
-  }
-  else if (report.configFile.changeType !== 'skipped') {
-    output.push(`To start using ${SIMPLE_NAME}, run:
-source ${report.configFile.path}
-`)
-  }
+  output.push(`Next configuration changes were made: \n${report.newSettings}`)
+  if (report.configFile == null)
+    output.push(`Setup complete. Open a new terminal to start using ${CLI_NAME}.`)
+  else if (report.configFile.changeType !== 'skipped')
+    output.push(`To start using ${SIMPLE_NAME}, run:\n source ${report.configFile.path}`)
   return output.join('\n\n')
 }
 
@@ -87,4 +71,15 @@ function reportConfigChange(configReport: ConfigReport): string {
     case 'modified': return `Replaced configuration in ${configReport.path}`
     case 'skipped': return `Configuration already up to date in ${configReport.path}`
   }
+}
+
+function getExecPath() {
+  // @ts-expect-error
+  if (process.pkg != null) {
+    // If the CLI was bundled by vercel/pkg then we cannot use the js path for npm_execpath
+    // because in that case the js is in a virtual filesystem inside the executor.
+    // Instead, we use the path to the exe file.
+    return process.execPath
+  }
+  return process.cwd()
 }

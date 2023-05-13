@@ -23,27 +23,37 @@ export function fetchFile(task: DownloadTask, _options: RequestInit = {}): Promi
     consola.start('begin download...')
     consola.info(url)
 
-    let filename = name
-    const filePath = `${targeFile}\\${filename}`
-    // 判断文件是否存在
-    const isExist = fs.existsSync(filePath)
-    if (!isExist)
-      fs.writeFileSync(filePath, '')
+    if (!fs.existsSync(targeFile))
+      fs.mkdirSync(targeFile)
 
-    const writer = fs.createWriteStream(filePath, { autoClose: false })
-    const control = new AbortController()
-    CURRENT_FETCH.set(url, control)
+    let filename = name
+    const filePath = () => `${targeFile}\\${filename}`
 
     let totalSize = 0
-    $fetch(url, {
-      responseType: 'stream',
-      signal: control.signal,
-      onResponse: (res) => {
-        filename = res.response.headers.get('content-disposition')?.split('filename=')[1] || ''
-        consola.log(`filename: ${filename}`)
-        totalSize = parseInt(res.response.headers.get('content-length') || '0', 10)
-      },
-    }).then((res) => {
+    let isEnd = false
+    const control = new AbortController()
+    CURRENT_FETCH.set(url, control)
+    const returnHandler = () => resolve({ task, filePath: filePath() })
+    function onResponse(res: any) {
+      filename = res.response.headers.get('content-disposition')?.split('filename=')[1] || ''
+
+      totalSize = parseInt(res.response.headers.get('content-length') || '0', 10)
+      // 判断文件是否存在
+      const isExist = fs.existsSync(filePath())
+      if (!isExist)
+        fs.writeFileSync(filePath(), '')
+
+      const fileStat = fs.statSync(filePath())
+      if (fileStat.size === totalSize) {
+        consola.success('file already exists')
+        isEnd = true
+      }
+      consola.log(`filename: ${filename} | size: ${totalSize} | fileStat.size: ${fileStat.size}`)
+    }
+
+    function handler(data: ReadableStream<Uint8Array>) {
+      if (isEnd)
+        return returnHandler()
       const bar = new ProgressBar(`${name} downloading  ${(totalSize / (1024 * 1024)).toFixed(2)}Mb [:bar] :rate :percent :etas`, {
         curr: 0,
         complete: '=',
@@ -51,6 +61,7 @@ export function fetchFile(task: DownloadTask, _options: RequestInit = {}): Promi
         width: 30,
         total: totalSize,
       })
+      const writer = fs.createWriteStream(filePath(), { autoClose: false })
       let preSize = 0
       writer.on('drain', () => {
         const size = writer.bytesWritten - preSize
@@ -60,8 +71,7 @@ export function fetchFile(task: DownloadTask, _options: RequestInit = {}): Promi
       writer.on('finish', () => {
         consola.success('download success')
         writer.close()
-        fs.renameSync(filePath, `${targeFile}\\${filename}`)
-        resolve({ task, filePath })
+        returnHandler()
       })
       writer.on('error', (err) => {
         writer.close()
@@ -69,8 +79,14 @@ export function fetchFile(task: DownloadTask, _options: RequestInit = {}): Promi
         reject(err)
       })
       const streamPipeline = promisify(pipeline)
-      streamPipeline(res as any, writer, { signal: control.signal }).catch(reject)
-    })
+      streamPipeline(data as any, writer, { signal: control.signal }).catch(reject)
+    }
+
+    $fetch(url, {
+      responseType: 'stream',
+      signal: control.signal,
+      onResponse,
+    }).then(handler)
   })
 }
 
